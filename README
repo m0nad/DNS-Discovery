@@ -1,0 +1,68 @@
+Introduction.
+
+The dns-discovery is a multi-threaded dns sub-domain brute-forcer,
+is meant to be used by pen-testers during the enumeration stage.
+Dns-discovery can resolve ipv4 and ipv6 sub-domains, for this, 
+its uses a word-list provided by the user.
+This was tested in GNU/Linux 2.6.38 and FreeBSD 8.1-STABLE.
+Its similar to others tools, like dnsmap, but this is multi-threaded.
+
+Download
+
+http://code.google.com/p/dns-discovery/
+
+
+Compiling
+
+$ gcc -o dns-discovery dns-discovery.c -lpthread -O3
+
+
+Usage
+
+usage: ./dns-discovery domain [options]
+options:
+	-w wordlist file (default : wordlist.wl)
+	-t threads (default : 1)
+	-r report file
+
+ex:
+$ ./dns-discovery google.com -w wordlist -t 5 -r reportfile
+   ___  _  ______    ___  _                              
+  / _ \/ |/ / __/___/ _ \(_)__ _______ _  _____ ______ __
+ / // /    /\ \/___/ // / (_-</ __/ _ \ |/ / -_) __/ // /
+/____/_/|_/___/   /____/_/___/\__/\___/___/\__/_/  \_, / 
+                                                  /___/  
+          by m0nad /at/ email.com
+
+DOMAIN : google.com
+WORDLIST: wordlist
+THREADS: 5
+REPORT: reportfile
+
+accounts.google.com
+IPv4 address: 209.85.195.84
+
+ads.google.com
+IPv4 address: 72.14.204.112
+
+ipv6.google.com
+IPv6 address: 2001:4860:b009::68
+
+...
+
+
+Similar tools
+
+dnsmap
+http://code.google.com/p/dnsmap/
+
+fierce
+http://ha.ckers.org/fierce/
+
+dnsenum
+http://dnsenum.googlecode.com/files/dnsenum1.2.tar.gz
+
+
+Feedback
+
+You can send me a email to: m0nad /at/ email.com
