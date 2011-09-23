@@ -1,6 +1,6 @@
 Introduction.
 
-The dns-discovery is a multi-threaded dns sub-domain brute-forcer,
+The dns-discovery is a multi-threaded sub-domain brute-forcer,
 is meant to be used by pen-testers during the enumeration stage.
 Dns-discovery can resolve ipv4 and ipv6 sub-domains, for this, 
 its uses a word-list provided by the user.
