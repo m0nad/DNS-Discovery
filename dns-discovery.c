@@ -74,7 +74,7 @@ ck_fopen (const char * path, const char * mode)
 {
   FILE * file = fopen (path, mode);
   if (file == NULL) 
-    error ("fopen ");
+    error ("fopen");
   return file;
 }
 
@@ -83,7 +83,7 @@ ck_malloc (size_t size)
 {
   void * ptr = malloc (size);
   if (ptr == NULL) 
-    error ("malloc ");
+    error ("malloc");
   return ptr;
 }
 
@@ -130,7 +130,7 @@ parse_args (int argc, char ** argv)
     usage ();
   dd_args.domain = argv[1];
   dd_args.nthreads = 1;
-  SAY ("DOMAIN : %s\n", dd_args.domain);
+  SAY ("DOMAIN: %s\n", dd_args.domain);
   argc--;
   argv++;
   opterr = 0;
@@ -236,7 +236,7 @@ main (int argc, char ** argv)
  
   for (i = 0; i < dd_args.nthreads; i++) {
     if (pthread_create (&threads[i], NULL, dns_discovery_thread, (void *)wordlist) != 0)
-      error ("pthread ");
+      error ("pthread");
   }
   for (i = 0; i < dd_args.nthreads; i++) {
     pthread_join (threads[i], NULL);
