@@ -5,8 +5,7 @@ DNS Discovery
 googlecode : http://code.google.com/p/dns-discovery/
 
 
-author	   : m0nad
-aka 	   : Victor Ramos Mello
+author	   : m0nad aka Victor Ramos Mello
 email	   : m0nad /at/ email.com
 github	   : https://github.com/m0nad/
 copyfree   : beer license, if you like this, buy me a beer
@@ -113,7 +112,7 @@ banner ()
 int
 usage ()
 {
-  SAY ("usage: ./dns-discovery domain [options]\n"
+  SAY ("usage: ./dns-discovery <domain> [options]\n"
        "options:\n"
        "\t-w <wordlist file> (default : %s)\n"
        "\t-t <threads> (default : 1)\n"
