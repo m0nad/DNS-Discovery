@@ -19,7 +19,7 @@ $ gcc -o dns-discovery dns-discovery.c -lpthread -O3
 
 Usage
 
-usage: ./dns-discovery domain [options]
+usage: ./dns-discovery <domain> [options]
 options:
 	-w <wordlist file> (default : wordlist.wl)
 	-t <threads> (default : 1)
