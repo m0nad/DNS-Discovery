@@ -5,7 +5,7 @@ DNS Discovery
 googlecode : http://code.google.com/p/dns-discovery/
 
 
-author	   : m0nad aka Victor Ramos Mello
+author	   : Victor Ramos Mello aka m0nad
 email	   : m0nad /at/ email.com
 github	   : https://github.com/m0nad/
 copyfree   : beer license, if you like this, buy me a beer
