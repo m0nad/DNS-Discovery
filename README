@@ -1,11 +1,13 @@
 Introduction.
 
-DNS-Discovery is a multi-threaded sub-domain brute-forcer,
-is meant to be used by pen-testers during the initial stages.
-DNS-Discovery can resolve ipv4 and ipv6 sub-domains, for this, 
-its uses a word-list provided by the user.
-This was tested in GNU/Linux 2.6.38 and FreeBSD 8.1-STABLE.
-Its similar to others tools, like dnsmap, but this is multi-threaded.
+DNS-Discovery is a multi-threaded sub-domain brute-forcer meant to be
+used by pen-testers during the initial stages of testing.
+It uses a word-list that concatenates with a given domain to search for
+subdomains.
+
+DNS-Discovery can resolve and display IPv4 and IPv6.  This was tested
+in GNU/Linux 2.6.38 and FreeBSD 8.1-STABLE.  It's similar to others
+tools, like dnsmap, but multi-threaded.
 
 Download
 
@@ -32,7 +34,7 @@ $ ./dns-discovery google.com -w wordlist -t 5 -r reportfile
  / // /    /\ \/___/ // / (_-</ __/ _ \ |/ / -_) __/ // /
 /____/_/|_/___/   /____/_/___/\__/\___/___/\__/_/  \_, / 
                                                   /___/  
-          by m0nad /at/ email.com
+          by m0nad
 
 DOMAIN : google.com
 WORDLIST: wordlist
