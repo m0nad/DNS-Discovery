@@ -17,7 +17,7 @@ $ ./dns-discovery google.com -w wordlist -t 5 -r reportfile
  / // /    /\ \/___/ // / (_-</ __/ _ \ |/ / -_) __/ // /
 /____/_/|_/___/   /____/_/___/\__/\___/___/\__/_/  \_, / 
                                                   /___/  
-	  by m0nad /at/ email.com
+	  by m0nad
 
 DOMAIN : google.com
 WORDLIST: wordlist
@@ -106,7 +106,7 @@ banner ()
        " / // /    /\\ \\/___/ // / (_-</ __/ _ \\ |/ / -_) __/ // /\n"
        "/____/_/|_/___/   /____/_/___/\\__/\\___/___/\\__/_/  \\_, / \n"
        "                                                  /___/  \n"
-       "\t  by m0nad /at/ email.com\n\n");
+       "\t  by m0nad\n\n");
 }
 
 int
