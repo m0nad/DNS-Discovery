@@ -2,7 +2,7 @@
 DNS Discovery
   A multi-threaded dns sub-domain brute-forcer
 
-googlecode : http://code.google.com/p/dns-discovery/
+googlecode : http://dns-discovery.googlecode.com
 
 
 author	   : Victor Ramos Mello aka m0nad
@@ -235,7 +235,7 @@ main (int argc, char ** argv)
  
   for (i = 0; i < dd_args.nthreads; i++) {
     if (pthread_create (&threads[i], NULL, dns_discovery_thread, (void *)wordlist) != 0)
-      error ("pthread");
+      error ("pthread_create");
   }
   for (i = 0; i < dd_args.nthreads; i++) {
     pthread_join (threads[i], NULL);
