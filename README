@@ -2,7 +2,7 @@ Introduction.
 
 DNS-Discovery is a multithreaded subdomain bruteforcer meant to be
 used by pentesters during the initial stages of testing.
-It uses a word-list that concatenates with a given domain to search for
+It uses a wordlist that concatenates with a given domain to search for
 subdomains.
 
 DNS-Discovery resolve and display IPv4 and IPv6.  It's similar to others
