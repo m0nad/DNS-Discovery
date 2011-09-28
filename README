@@ -5,9 +5,9 @@ used by pen-testers during the initial stages of testing.
 It uses a word-list that concatenates with a given domain to search for
 subdomains.
 
-DNS-Discovery can resolve and display IPv4 and IPv6.  This was tested
-in GNU/Linux 2.6.38 and FreeBSD 8.1-STABLE.  It's similar to others
+DNS-Discovery can resolve and display IPv4 and IPv6.  It's similar to others
 tools, like dnsmap, but multi-threaded.
+It was testedin GNU/Linux 2.6.38 and FreeBSD 8.1-STABLE.
 
 Download
 
