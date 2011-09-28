@@ -1,6 +1,6 @@
 /*
 DNS Discovery
-  A multi-threaded dns sub-domain brute-forcer
+  A multithreaded subdomain bruteforcer
 
 googlecode : http://dns-discovery.googlecode.com
 
@@ -19,10 +19,10 @@ $ ./dns-discovery google.com -w wordlist -t 5 -r reportfile
                                                   /___/  
 	  by m0nad
 
-DOMAIN : google.com
-WORDLIST: wordlist
+DOMAIN: google.com
 THREADS: 5
-REPORT: reportfile
+REPORT: reportfile 
+WORDLIST: wordlist
 
 accounts.google.com
 IPv4 address: 209.85.195.84
@@ -191,7 +191,7 @@ resolve_lookup (const char * hostname)
       inet_ntop (res->ai_family, addr_ptr, addr_str, LEN);
       SAY ("IPv%d address: %s\n", ipv, addr_str);
     }
-    SAY("\n");
+    SAY ("\n");
     pthread_mutex_unlock (&mutexsum);
     freeaddrinfo (ori_res);
   }
@@ -226,7 +226,7 @@ main (int argc, char ** argv)
   pthread_t * threads;
   FILE * wordlist;
 
-  banner();
+  banner ();
  
   wordlist = parse_args (argc, argv);
   threads = (pthread_t *) ck_malloc (dd_args.nthreads * sizeof (pthread_t)); 
