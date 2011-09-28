@@ -1,6 +1,6 @@
 Introduction.
 
-DNS-Discovery is a multithreaded sub-domain bruteforcer meant to be
+DNS-Discovery is a multithreaded subdomain bruteforcer meant to be
 used by pentesters during the initial stages of testing.
 It uses a word-list that concatenates with a given domain to search for
 subdomains.
