@@ -10,40 +10,17 @@ email	   : m0nad /at/ email.com
 github	   : https://github.com/m0nad/
 copyfree   : beer license, if you like this, buy me a beer
 	
-$ gcc -o dns-discovery dns-discovery.c -Wall -Wextra -lpthread -O3
-$ ./dns-discovery google.com -w wordlist -t 5 -r reportfile
-   ___  _  ______    ___  _                              
-  / _ \/ |/ / __/___/ _ \(_)__ _______ _  _____ ______ __
- / // /    /\ \/___/ // / (_-</ __/ _ \ |/ / -_) __/ // /
-/____/_/|_/___/   /____/_/___/\__/\___/___/\__/_/  \_, / 
-                                                  /___/  
-	  by m0nad
-
-DOMAIN: google.com
-THREADS: 5
-REPORT: reportfile 
-WORDLIST: wordlist
-
-accounts.google.com
-IPv4 address: 209.85.195.84
-
-ads.google.com
-IPv4 address: 72.14.204.112
-
-ipv6.google.com
-IPv6 address: 2001:4860:b009::68
-
-...
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <getopt.h>
 #include <unistd.h>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
-#include <string.h>
 
 #define LEN 256
 #define MAX 512
@@ -106,7 +83,7 @@ banner ()
        " / // /    /\\ \\/___/ // / (_-</ __/ _ \\ |/ / -_) __/ // /\n"
        "/____/_/|_/___/   /____/_/___/\\__/\\___/___/\\__/_/  \\_, / \n"
        "                                                  /___/  \n"
-       "\t  by m0nad\n\n");
+       "\tby m0nad\n\n");
 }
 
 int
@@ -215,7 +192,7 @@ dns_discovery_thread (void * args)
 {
   FILE * wordlist = (FILE *) args;
   dns_discovery (wordlist, dd_args.domain);
-  //pthread_exit ((void *) 0);
+  /*pthread_exit ((void *) 0);*/
   return NULL;	
 }
 
