@@ -34,7 +34,7 @@ $ ./dns-discovery google.com -w wordlist -t 5 -r reportfile
  / // /    /\ \/___/ // / (_-</ __/ _ \ |/ / -_) __/ // /
 /____/_/|_/___/   /____/_/___/\__/\___/___/\__/_/  \_, / 
                                                   /___/  
-          by m0nad
+        by m0nad
 
 DOMAIN: google.com
 THREADS: 5
