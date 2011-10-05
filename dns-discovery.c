@@ -33,7 +33,6 @@ copyfree   : beer license, if you like this, buy me a beer
   if (dd_args.csv)\
     fprintf (dd_args.csv, args);
 
-
 struct dns_discovery_args {
   FILE * report;
   FILE * csv;
