@@ -4,12 +4,10 @@ DNS Discovery
 
 googlecode : http://dns-discovery.googlecode.com
 
-
 author	   : Victor Ramos Mello aka m0nad
 email	   : m0nad /at/ email.com
 github	   : https://github.com/m0nad/
 copyfree   : beer license, if you like this, buy me a beer
-	
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +23,7 @@ copyfree   : beer license, if you like this, buy me a beer
 #define LEN 256
 #define MAX 512
 #define DEFAULT_WL "wordlist.wl"
+
 #define SAY(args...)\
   printf (args);\
   if (dd_args.report)\
@@ -32,6 +31,7 @@ copyfree   : beer license, if you like this, buy me a beer
 
 struct dns_discovery_args {
   FILE * report;
+  FILE * csv;
   char * domain;
   int nthreads;
 };
@@ -101,27 +101,32 @@ FILE *
 parse_args (int argc, char ** argv)
 {
   FILE * wordlist = NULL;
-  char c, * ptr_report = NULL; 
+  char c; 
   if (argc < 2) 
     usage ();
   dd_args.domain = argv[1];
   dd_args.nthreads = 1;
-  SAY ("DOMAIN: %s\n", dd_args.domain);
+  printf ("DOMAIN: %s\n", dd_args.domain);
   argc--;
   argv++;
   opterr = 0;
-  while ((c = getopt (argc, argv, "r:w:t:")) != -1)
+  while ((c = getopt (argc, argv, "r:w:t:c:")) != -1)
     switch (c) {
       case 'w':
-        SAY ("WORDLIST: %s\n", optarg);
+        printf ("WORDLIST: %s\n", optarg);
         wordlist = ck_fopen (optarg, "r");
         break;
       case 't':
-        SAY ("THREADS: %s\n", optarg);
+        printf ("THREADS: %s\n", optarg);
         dd_args.nthreads = atoi (optarg);
 	break;
       case 'r':
-	ptr_report = optarg;
+        printf ("REPORT: %s\n", optarg);
+        dd_args.report = ck_fopen (optarg, "w");
+        break;
+      case 'c':
+        printf ("CSV REPORT: %s\n", optarg);
+        dd_args.csv = ck_fopen (optarg, "w");
         break;
       case '?':
         if (optopt == 'r' || optopt == 'w' || optopt == 't') {
@@ -131,11 +136,7 @@ parse_args (int argc, char ** argv)
       default:
         usage ();
     }
-  if (ptr_report) {
-    SAY ("REPORT: %s\n", ptr_report);
-    dd_args.report = ck_fopen (ptr_report, "w");
-  }
-  SAY ("\n");
+    printf ("%s", "\n");
   return wordlist;
 }
 
@@ -155,6 +156,8 @@ resolve_lookup (const char * hostname)
   if (getaddrinfo (hostname, NULL, &hints, &res) == 0) {
     pthread_mutex_lock (&mutexsum);
     SAY ("%s\n", hostname);
+    if (dd_args.csv)
+      fprintf (dd_args.csv, "%s", hostname);
     for (ori_res = res; res; res = res->ai_next) { 
       switch (res->ai_family) {
         case AF_INET:
@@ -168,8 +171,12 @@ resolve_lookup (const char * hostname)
       }
       inet_ntop (res->ai_family, addr_ptr, addr_str, LEN);
       SAY ("IPv%d address: %s\n", ipv, addr_str);
+      if (dd_args.csv)
+	fprintf (dd_args.csv, ",%s", addr_str);
     }
     SAY ("\n");
+    if (dd_args.csv)
+       fprintf (dd_args.csv, "\n");
     pthread_mutex_unlock (&mutexsum);
     freeaddrinfo (ori_res);
   }
