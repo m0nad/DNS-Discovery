@@ -29,6 +29,11 @@ copyfree   : beer license, if you like this, buy me a beer
   if (dd_args.report)\
     fprintf (dd_args.report, args);
 
+#define CSV(format, ...)\
+  if (dd_args.csv)\
+    fprintf (dd_args.csv, format, ##__VA_ARGS__);
+
+
 struct dns_discovery_args {
   FILE * report;
   FILE * csv;
@@ -160,8 +165,7 @@ resolve_lookup (const char * hostname)
   if (getaddrinfo (hostname, NULL, &hints, &res) == 0) {
     pthread_mutex_lock (&mutexsum);
     SAY ("%s\n", hostname);
-    if (dd_args.csv)
-      fprintf (dd_args.csv, "%s", hostname);
+    CSV ("%s", hostname);
     for (ori_res = res; res; res = res->ai_next) { 
       switch (res->ai_family) {
         case AF_INET:
@@ -175,12 +179,10 @@ resolve_lookup (const char * hostname)
       }
       inet_ntop (res->ai_family, addr_ptr, addr_str, LEN);
       SAY ("IPv%d address: %s\n", ipv, addr_str);
-      if (dd_args.csv)
-	fprintf (dd_args.csv, ",%s", addr_str);
+      CSV (",%s", addr_str);
     }
     SAY ("\n");
-    if (dd_args.csv)
-       fprintf (dd_args.csv, "\n");
+    CSV ("\n");
     pthread_mutex_unlock (&mutexsum);
     freeaddrinfo (ori_res);
   }
