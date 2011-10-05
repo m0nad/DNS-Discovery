@@ -102,7 +102,7 @@ FILE *
 parse_args (int argc, char ** argv)
 {
   FILE * wordlist = NULL;
-  char c; 
+  char c, * ptr_wl = DEFAULT_WL; 
   if (argc < 2) 
     usage ();
   dd_args.domain = argv[1];
@@ -114,6 +114,7 @@ parse_args (int argc, char ** argv)
   while ((c = getopt (argc, argv, "r:w:t:c:")) != -1)
     switch (c) {
       case 'w':
+        ptr_wl = optarg;
         printf ("WORDLIST: %s\n", optarg);
         wordlist = ck_fopen (optarg, "r");
         break;
@@ -137,7 +138,11 @@ parse_args (int argc, char ** argv)
       default:
         usage ();
     }
-    printf ("%s", "\n");
+  printf ("WORDLIST: %s\n", ptr_wl);
+  wordlist = ck_fopen (ptr_wl, "r");
+
+  printf ("\n");
+
   return wordlist;
 }
 
