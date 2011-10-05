@@ -93,7 +93,8 @@ usage ()
        "options:\n"
        "\t-w <wordlist file> (default : %s)\n"
        "\t-t <threads> (default : 1)\n"
-       "\t-r <report file>\n", DEFAULT_WL);
+       "\t-r <report file>\n"
+       "\t-c <csv report file>\n\n", DEFAULT_WL);
   exit (0);
 }
 
