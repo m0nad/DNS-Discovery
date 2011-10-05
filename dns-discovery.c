@@ -101,7 +101,7 @@ FILE *
 parse_args (int argc, char ** argv)
 {
   FILE * wordlist = NULL;
-  char c, * ptr_wl = DEFAULT_WL; 
+  char c, * ptr_report = NULL; 
   if (argc < 2) 
     usage ();
   dd_args.domain = argv[1];
@@ -113,15 +113,15 @@ parse_args (int argc, char ** argv)
   while ((c = getopt (argc, argv, "r:w:t:")) != -1)
     switch (c) {
       case 'w':
-        ptr_wl = optarg;
+        SAY ("WORDLIST: %s\n", optarg);
+        wordlist = ck_fopen (optarg, "r");
         break;
       case 't':
         SAY ("THREADS: %s\n", optarg);
         dd_args.nthreads = atoi (optarg);
 	break;
       case 'r':
-        SAY ("REPORT: %s\n", optarg);
-        dd_args.report = ck_fopen (optarg, "a");
+	ptr_report = optarg;
         break;
       case '?':
         if (optopt == 'r' || optopt == 'w' || optopt == 't') {
@@ -131,9 +131,10 @@ parse_args (int argc, char ** argv)
       default:
         usage ();
     }
-  SAY ("WORDLIST: %s\n", ptr_wl);
-  wordlist = ck_fopen (ptr_wl, "r");
-
+  if (ptr_report) {
+    SAY ("REPORT: %s\n", ptr_report);
+    dd_args.report = ck_fopen (ptr_report, "w");
+  }
   SAY ("\n");
   return wordlist;
 }
