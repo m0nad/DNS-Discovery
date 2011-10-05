@@ -227,6 +227,8 @@ main (int argc, char ** argv)
 
   if (dd_args.report)
     fclose (dd_args.report);
+  if (dd_args.csv)
+    fclose (dd_args.csv);
 
   free (threads);
   fclose (wordlist);
