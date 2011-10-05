@@ -115,8 +115,6 @@ parse_args (int argc, char ** argv)
     switch (c) {
       case 'w':
         ptr_wl = optarg;
-        printf ("WORDLIST: %s\n", optarg);
-        wordlist = ck_fopen (optarg, "r");
         break;
       case 't':
         printf ("THREADS: %s\n", optarg);
