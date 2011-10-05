@@ -29,9 +29,9 @@ copyfree   : beer license, if you like this, buy me a beer
   if (dd_args.report)\
     fprintf (dd_args.report, args);
 
-#define CSV(format, ...)\
+#define CSV(args...)\
   if (dd_args.csv)\
-    fprintf (dd_args.csv, format, ##__VA_ARGS__);
+    fprintf (dd_args.csv, args);
 
 
 struct dns_discovery_args {
