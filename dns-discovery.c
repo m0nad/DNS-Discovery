@@ -25,7 +25,10 @@ copyfree   : beer license, if you like this, buy me a beer
 #define DEFAULT_WL "wordlist.wl"
 
 #define SAY(args...)\
-  printf (args);\
+  fprintf (stdout, args);
+
+#define REPORT(args...)\
+  SAY (args);\
   if (dd_args.report)\
     fprintf (dd_args.report, args);
 
@@ -40,13 +43,14 @@ struct dns_discovery_args {
   int nthreads;
 };
 struct dns_discovery_args dd_args;
+
 pthread_mutex_t mutexsum;
 
 void
 error (const char * msg)
 {
   perror (msg);
-  exit (1);
+  exit (EXIT_FAILURE);
 }
 
 FILE *
@@ -99,7 +103,7 @@ usage ()
        "\t-t <threads> (default : 1)\n"
        "\t-r <report file>\n"
        "\t-c <csv report file>\n\n", DEFAULT_WL);
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 FILE *
@@ -111,7 +115,7 @@ parse_args (int argc, char ** argv)
     usage ();
   dd_args.domain = argv[1];
   dd_args.nthreads = 1;
-  printf ("DOMAIN: %s\n", dd_args.domain);
+  SAY ("DOMAIN: %s\n", dd_args.domain);
   argc--;
   argv++;
   opterr = 0;
@@ -121,29 +125,29 @@ parse_args (int argc, char ** argv)
         ptr_wl = optarg;
         break;
       case 't':
-        printf ("THREADS: %s\n", optarg);
+        SAY ("THREADS: %s\n", optarg);
         dd_args.nthreads = atoi (optarg);
 	break;
       case 'r':
-        printf ("REPORT: %s\n", optarg);
+        SAY ("REPORT: %s\n", optarg);
         dd_args.report = ck_fopen (optarg, "w");
         break;
       case 'c':
-        printf ("CSV REPORT: %s\n", optarg);
+        SAY ("CSV REPORT: %s\n", optarg);
         dd_args.csv = ck_fopen (optarg, "w");
         break;
       case '?':
         if (optopt == 'r' || optopt == 'w' || optopt == 't') {
           fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-	  exit (1);
+	  exit (EXIT_FAILURE);
         }
       default:
         usage ();
     }
-  printf ("WORDLIST: %s\n", ptr_wl);
+  SAY ("WORDLIST: %s\n", ptr_wl);
   wordlist = ck_fopen (ptr_wl, "r");
 
-  printf ("\n");
+  SAY ("\n");
 
   return wordlist;
 }
@@ -163,7 +167,7 @@ resolve_lookup (const char * hostname)
 
   if (getaddrinfo (hostname, NULL, &hints, &res) == 0) {
     pthread_mutex_lock (&mutexsum);
-    SAY ("%s\n", hostname);
+    REPORT ("%s\n", hostname);
     CSV ("%s", hostname);
     for (ori_res = res; res; res = res->ai_next) { 
       switch (res->ai_family) {
@@ -177,10 +181,10 @@ resolve_lookup (const char * hostname)
           break;
       }
       inet_ntop (res->ai_family, addr_ptr, addr_str, LEN);
-      SAY ("IPv%d address: %s\n", ipv, addr_str);
+      REPORT ("IPv%d address: %s\n", ipv, addr_str);
       CSV (",%s", addr_str);
     }
-    SAY ("\n");
+    REPORT ("\n");
     CSV ("\n");
     pthread_mutex_unlock (&mutexsum);
     freeaddrinfo (ori_res);
@@ -200,6 +204,15 @@ dns_discovery (FILE * file, const char * domain)
   }
 }
 
+void
+cleanup ()
+{
+  if (dd_args.report)
+    fclose (dd_args.report);
+  if (dd_args.csv)
+    fclose (dd_args.csv);
+} 
+
 void *
 dns_discovery_thread (void * args)
 {
@@ -216,6 +229,11 @@ main (int argc, char ** argv)
   pthread_t * threads;
   FILE * wordlist;
 
+  if (atexit (cleanup) != 0) {
+    fprintf (stderr, "Cannot set exit function\n");
+    return EXIT_FAILURE;
+  }
+
   banner ();
  
   wordlist = parse_args (argc, argv);
@@ -228,13 +246,9 @@ main (int argc, char ** argv)
   for (i = 0; i < dd_args.nthreads; i++) {
     pthread_join (threads[i], NULL);
   }
-
-  if (dd_args.report)
-    fclose (dd_args.report);
-  if (dd_args.csv)
-    fclose (dd_args.csv);
-
+  
   free (threads);
   fclose (wordlist);
-  return 0;
+
+  return EXIT_SUCCESS;
 }
