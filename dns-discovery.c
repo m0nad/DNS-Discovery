@@ -43,7 +43,6 @@ struct dns_discovery_args {
   int nthreads;
 };
 struct dns_discovery_args dd_args;
-
 pthread_mutex_t mutexsum;
 
 void
@@ -82,6 +81,15 @@ chomp (char * str)
     str++;
   }
 }
+
+void
+cleanup ()
+{
+  if (dd_args.report)
+    fclose (dd_args.report);
+  if (dd_args.csv)
+    fclose (dd_args.csv);
+} 
 
 void
 banner ()
@@ -203,15 +211,6 @@ dns_discovery (FILE * file, const char * domain)
     resolve_lookup (hostname);
   }
 }
-
-void
-cleanup ()
-{
-  if (dd_args.report)
-    fclose (dd_args.report);
-  if (dd_args.csv)
-    fclose (dd_args.csv);
-} 
 
 void *
 dns_discovery_thread (void * args)
