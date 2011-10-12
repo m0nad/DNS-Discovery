@@ -110,7 +110,7 @@ usage ()
        "options:\n"
        "\t-w <wordlist file> (default : %s)\n"
        "\t-t <threads> (default : 1)\n"
-       "\t-r <regular report-file>\n"
+       "\t-r <regular report file>\n"
        "\t-c <csv report file>\n"
        "\t-d <ms delay> (default : 0)\n\n", DEFAULT_WL);
 
