@@ -27,19 +27,20 @@ copyfree   : beer license, if you like this, buy me a beer
 #define SAY(args...)\
   fprintf (stdout, args);
 
-#define REPORT(args...)\
+#define REG_REPORT(args...)\
   SAY (args);\
-  if (dd_args.report)\
-    fprintf (dd_args.report, args);
+  if (dd_args.reg_report)\
+    fprintf (dd_args.reg_report, args);
 
-#define CSV(args...)\
-  if (dd_args.csv)\
-    fprintf (dd_args.csv, args);
+#define CSV_REPORT(args...)\
+  if (dd_args.csv_report)\
+    fprintf (dd_args.csv_report, args);
 
 struct dns_discovery_args {
-  FILE * report;
-  FILE * csv;
+  FILE * reg_report;
+  FILE * csv_report;
   char * domain;
+  int delay_ms;
   int nthreads;
 };
 struct dns_discovery_args dd_args;
@@ -85,10 +86,10 @@ chomp (char * str)
 void
 cleanup ()
 {
-  if (dd_args.report)
-    fclose (dd_args.report);
-  if (dd_args.csv)
-    fclose (dd_args.csv);
+  if (dd_args.reg_report)
+    fclose (dd_args.reg_report);
+  if (dd_args.csv_report)
+    fclose (dd_args.csv_report);
 } 
 
 void
@@ -109,8 +110,10 @@ usage ()
        "options:\n"
        "\t-w <wordlist file> (default : %s)\n"
        "\t-t <threads> (default : 1)\n"
-       "\t-r <report file>\n"
-       "\t-c <csv report file>\n\n", DEFAULT_WL);
+       "\t-r <regular report-file>\n"
+       "\t-c <csv report file>\n"
+       "\t-d <ms delay> (default : 0)\n\n", DEFAULT_WL);
+
   exit (EXIT_SUCCESS);
 }
 
@@ -123,11 +126,12 @@ parse_args (int argc, char ** argv)
     usage ();
   dd_args.domain = argv[1];
   dd_args.nthreads = 1;
+  dd_args.delay_ms = 0;
   SAY ("DOMAIN: %s\n", dd_args.domain);
   argc--;
   argv++;
   opterr = 0;
-  while ((c = getopt (argc, argv, "r:w:t:c:")) != -1)
+  while ((c = getopt (argc, argv, "r:w:t:c:d:")) != -1)
     switch (c) {
       case 'w':
         ptr_wl = optarg;
@@ -137,15 +141,19 @@ parse_args (int argc, char ** argv)
         dd_args.nthreads = atoi (optarg);
 	break;
       case 'r':
-        SAY ("REPORT: %s\n", optarg);
-        dd_args.report = ck_fopen (optarg, "w");
+        SAY ("REGULAR REPORT: %s\n", optarg);
+        dd_args.reg_report = ck_fopen (optarg, "w");
         break;
       case 'c':
         SAY ("CSV REPORT: %s\n", optarg);
-        dd_args.csv = ck_fopen (optarg, "w");
+        dd_args.csv_report = ck_fopen (optarg, "w");
+        break;
+      case 'd':
+        SAY ("DELAY: %s\n", optarg);
+        dd_args.delay_ms = atoi (optarg);
         break;
       case '?':
-        if (optopt == 'r' || optopt == 'w' || optopt == 't') {
+        if (optopt == 'r' || optopt == 'w' || optopt == 't' || optopt == 'c' || optopt == 'd') {
           fprintf (stderr, "Option -%c requires an argument.\n", optopt);
 	  exit (EXIT_FAILURE);
         }
@@ -175,8 +183,8 @@ resolve_lookup (const char * hostname)
 
   if (getaddrinfo (hostname, NULL, &hints, &res) == 0) {
     pthread_mutex_lock (&mutexsum);
-    REPORT ("%s\n", hostname);
-    CSV ("%s", hostname);
+    REG_REPORT ("%s\n", hostname);
+    CSV_REPORT ("%s", hostname);
     for (ori_res = res; res; res = res->ai_next) { 
       switch (res->ai_family) {
         case AF_INET:
@@ -189,14 +197,20 @@ resolve_lookup (const char * hostname)
           break;
       }
       inet_ntop (res->ai_family, addr_ptr, addr_str, LEN);
-      REPORT ("IPv%d address: %s\n", ipv, addr_str);
-      CSV (",%s", addr_str);
+      REG_REPORT ("IPv%d address: %s\n", ipv, addr_str);
+      CSV_REPORT (",%s", addr_str);
     }
-    REPORT ("\n");
-    CSV ("\n");
+    REG_REPORT ("\n");
+    CSV_REPORT ("\n");
     pthread_mutex_unlock (&mutexsum);
     freeaddrinfo (ori_res);
   }
+}
+
+void
+dodelay ()
+{
+  usleep (dd_args.delay_ms*1000);
 }
 
 void 
@@ -209,6 +223,7 @@ dns_discovery (FILE * file, const char * domain)
     chomp (line);
     snprintf (hostname, sizeof hostname, "%s.%s", line, domain);
     resolve_lookup (hostname);
+    dodelay ();    
   }
 }
 
