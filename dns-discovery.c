@@ -128,7 +128,7 @@ parse_args (int argc, char ** argv)
   argc--;
   argv++;
   opterr = 0;
-  while ((c = getopt (argc, argv, "r:w:t:c:d:")) != -1)
+  while ((c = getopt (argc, argv, "r:w:t:c:")) != -1)
     switch (c) {
       case 'w':
         ptr_wl = optarg;
