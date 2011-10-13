@@ -155,7 +155,7 @@ parse_args (int argc, char ** argv)
       case 'd':
         SAY ("DELAY: %s\n", optarg);
         dd_args.delay_ms = atoi (optarg);
-        if (dd_args.delay_msdd_args.nthreads > 1) {
+        if (dd_args.delay_ms && dd_args.nthreads > 1) {
           fprintf (stderr, "Can't use delay with mutithreading\n");
           exit (EXIT_FAILURE);
         }
