@@ -31,7 +31,7 @@ usage: ./dns-discovery <domain> [options]
 options:
 	-w <wordlist file> (default : wordlist.wl)
 	-t <threads> (default : 1)
-	-r <report file>
+	-r <regular report file>
 	-c <csv report file>
 
 ex:
