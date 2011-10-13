@@ -40,7 +40,6 @@ struct dns_discovery_args {
   FILE * reg_report;
   FILE * csv_report;
   char * domain;
-  int delay_ms;
   int nthreads;
 };
 struct dns_discovery_args dd_args;
@@ -111,8 +110,7 @@ usage ()
        "\t-w <wordlist file> (default : %s)\n"
        "\t-t <threads> (default : 1)\n"
        "\t-r <regular report file>\n"
-       "\t-c <csv report file>\n"
-       "\t-d <ms delay> (default : 0)\n\n", DEFAULT_WL);
+       "\t-c <csv report file>\n\n", DEFAULT_WL);
 
   exit (EXIT_SUCCESS);
 }
@@ -126,7 +124,6 @@ parse_args (int argc, char ** argv)
     usage ();
   dd_args.domain = argv[1];
   dd_args.nthreads = 1;
-  dd_args.delay_ms = 0;
   SAY ("DOMAIN: %s\n", dd_args.domain);
   argc--;
   argv++;
@@ -139,11 +136,7 @@ parse_args (int argc, char ** argv)
       case 't':
         SAY ("THREADS: %s\n", optarg);
         dd_args.nthreads = atoi (optarg);
-        if (dd_args.delay_ms && dd_args.nthreads > 1) {
-          fprintf (stderr, "Can't use delay with mutithreading\n");
-          exit (EXIT_FAILURE);
-        }
-	break;
+  	break;
       case 'r':
         SAY ("REGULAR REPORT: %s\n", optarg);
         dd_args.reg_report = ck_fopen (optarg, "w");
@@ -151,14 +144,6 @@ parse_args (int argc, char ** argv)
       case 'c':
         SAY ("CSV REPORT: %s\n", optarg);
         dd_args.csv_report = ck_fopen (optarg, "w");
-        break;
-      case 'd':
-        SAY ("DELAY: %s\n", optarg);
-        dd_args.delay_ms = atoi (optarg);
-        if (dd_args.delay_ms && dd_args.nthreads > 1) {
-          fprintf (stderr, "Can't use delay with mutithreading\n");
-          exit (EXIT_FAILURE);
-        }
         break;
       case '?':
         if (optopt == 'r' || optopt == 'w' || optopt == 't' || optopt == 'c' || optopt == 'd') {
@@ -170,7 +155,6 @@ parse_args (int argc, char ** argv)
     }
   SAY ("WORDLIST: %s\n", ptr_wl);
   wordlist = ck_fopen (ptr_wl, "r");
-
   SAY ("\n");
 
   return wordlist;
@@ -215,12 +199,6 @@ resolve_lookup (const char * hostname)
   }
 }
 
-void
-dodelay ()
-{
-  usleep (dd_args.delay_ms*1000);
-}
-
 void 
 dns_discovery (FILE * file, const char * domain)
 {
@@ -231,7 +209,6 @@ dns_discovery (FILE * file, const char * domain)
     chomp (line);
     snprintf (hostname, sizeof hostname, "%s.%s", line, domain);
     resolve_lookup (hostname);
-    dodelay ();    
   }
 }
 
