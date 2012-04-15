@@ -20,12 +20,6 @@ $ gcc -o dns-discovery dns-discovery.c -lpthread -O3
 
 
 Usage
-   ___  _  ______    ___  _                              
-  / _ \/ |/ / __/___/ _ \(_)__ _______ _  _____ ______ __
- / // /    /\ \/___/ // / (_-</ __/ _ \ |/ / -_) __/ // /
-/____/_/|_/___/   /____/_/___/\__/\___/___/\__/_/  \_, / 
-                                                  /___/  
-	by m0nad
 
 usage: ./dns-discovery <domain> [options]
 options:
