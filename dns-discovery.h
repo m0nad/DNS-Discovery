@@ -3,16 +3,16 @@
 #define DEFAULT_WL "wordlist.wl"
 
 #define SAY(args...)\
-  fprintf (stdout, args);
+  fprintf(stdout, args);
 
 #define REG_REPORT(args...)\
   SAY(args);\
   if (dd_args.reg_report)\
-    fprintf (dd_args.reg_report, args);
+    fprintf(dd_args.reg_report, args);
 
 #define CSV_REPORT(args...)\
   if (dd_args.csv_report)\
-    fprintf (dd_args.csv_report, args);
+    fprintf(dd_args.csv_report, args);
 
 struct dns_discovery_args {
   FILE * reg_report;
