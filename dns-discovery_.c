@@ -239,9 +239,7 @@ gen_randstr(char * str_rand, const int len)
        str_rand[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
    }
 
-   //str_rand[len] = 0;
-   //fgets (str_rand, sizeof LEN, stdin);
-   //chomp (str_rand);
+   str_rand[len] = 0;
    scanf("%s", str_rand);
 }
 
@@ -273,6 +271,11 @@ bool compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2){
     return false;                    
 }    
 
+struct hash_addrinfo {
+    struct addrinfo * host;
+    int sum;
+};
+
 bool compare_hosts(struct addrinfo * host1, struct addrinfo * host2){
     int size;
     bool found;
@@ -300,17 +303,41 @@ bool compare_hosts(struct addrinfo * host1, struct addrinfo * host2){
 float
 compare_samples(struct addrinfo ** rand_res, int n_res)
 {
-    int i,j,sum = 0;
+    int i,j, top = 0, max = 0; //sum = 0,
+    bool found;
     float similarity;
-     
-    for (i = 0 ; i < n_res - 1; i++){
-        for (j = i + 1 ; j < n_res ; j++){
-            if(compare_hosts(rand_res[i],rand_res[j]))
-                sum++;
+    struct hash_addrinfo * hash_acc = (struct hash_addrinfo *) ck_malloc(n_res * sizeof(struct hash_addrinfo));
+
+
+    for (i = 0 ; i < n_res ; i++) {
+       hash_acc[i].host = NULL;
+       hash_acc[i].sum = 0;
+    }
+
+    hash_acc[top].host = rand_res[top];
+    hash_acc[top].sum = 1;
+
+    for (i = 1 ; i < n_res ; i++) {
+        found = false;
+        for (j = 0 ; j < n_res ; j++){
+            if (hash_acc[j].host != NULL && compare_hosts(rand_res[i], hash_acc[j].host)) {
+                hash_acc[j].sum++;
+                found = true;
+		break;
+            } 
+        }
+        if (!found) {
+    	    hash_acc[++top].host = rand_res[j];
+	    hash_acc[top].sum = 1;
         }
     }
-    printf("sum %d\n", sum);
-    similarity = (sum * 100) / (((n_res * n_res) - n_res) / 2);
+
+    for (i = 0 ; i < n_res ; i++) {
+	if (hash_acc[i].sum > max)
+	    max = hash_acc[i].sum;
+    }
+    printf ("max %d\n", max);
+    similarity = (max * 100) / n_res;
 
     return similarity;
 }
@@ -349,7 +376,7 @@ err:
     free(rand_res);
     
     //if (err < 0)
-    //    return err;
+    //   return err;
     
     return similarity;
 }
