@@ -1,7 +1,6 @@
 #define LEN 256
 #define MAX 512
 #define DEFAULT_WL "wordlist.wl"
-#define SAMPLE_SIZE 10
 
 #define SAY(args...)\
   fprintf(stdout, args);

@@ -177,7 +177,7 @@ gen_randstr(char * str_rand, const int len)
     }
 
     str_rand[len] = 0;
-    //scanf("%s", str_rand);
+    scanf("%s", str_rand);
 
 }
 
