@@ -30,6 +30,8 @@ cleanup()
         fclose(dd_args.reg_report);
     if (dd_args.csv_report)
         fclose(dd_args.csv_report);
+    if (dd_args.wildcard)
+        freeaddrinfo(dd_args.wildcard);
 } 
 
 void
@@ -100,14 +102,41 @@ parse_args(int argc, char ** argv)
 
     return wordlist;
 }
+void
+print_resolve_lookup(const char * hostname, struct addrinfo * res)
+{
+    int ipv = 0;
+    void * addr_ptr = NULL;
+    char addr_str[LEN];
+    //struct addrinfo * ori_res;
 
+    REG_REPORT("%s\n", hostname);
+    CSV_REPORT("%s", hostname);
+    for (; res; res = res->ai_next) { 
+        switch (res->ai_family) {
+            case AF_INET:
+                ipv = 4;
+                addr_ptr = &((struct sockaddr_in *) res->ai_addr)->sin_addr;
+                break;
+            case AF_INET6:
+                ipv = 6;
+                addr_ptr = &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr;
+                break;
+        }
+        inet_ntop(res->ai_family, addr_ptr, addr_str, LEN);
+        REG_REPORT("IPv%d address: %s\n", ipv, addr_str);
+        CSV_REPORT(",%s", addr_str);
+    }
+    REG_REPORT("\n");
+    CSV_REPORT("\n");
+} 
 void
 resolve_lookup(const char * hostname)
 {
-    int ipv = 0;
-    char addr_str [LEN];
-    void * addr_ptr = NULL;
-    struct addrinfo * res, * ori_res, hints;
+    //int ipv = 0;
+    //char addr_str[LEN];
+    //void * addr_ptr = NULL;
+    struct addrinfo * res, hints;//
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = PF_UNSPEC;
@@ -116,6 +145,8 @@ resolve_lookup(const char * hostname)
 
     if (getaddrinfo(hostname, NULL, &hints, &res) == 0) {
         pthread_mutex_lock(&mutexsum);
+        print_resolve_lookup(hostname, res);
+/*
         REG_REPORT("%s\n", hostname);
         CSV_REPORT("%s", hostname);
         for (ori_res = res; res; res = res->ai_next) { 
@@ -135,8 +166,10 @@ resolve_lookup(const char * hostname)
         }
         REG_REPORT("\n");
         CSV_REPORT("\n");
+*/
+
+    	freeaddrinfo(res);
         pthread_mutex_unlock(&mutexsum);
-        freeaddrinfo(ori_res);
     }
 }
 
@@ -172,7 +205,6 @@ gen_randstr(char * str_rand, const int len)
 
 
     for (i = 0; i < len; i++) {
-        srand(time(NULL) + i);
         str_rand[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
     }
 
@@ -181,7 +213,8 @@ gen_randstr(char * str_rand, const int len)
 
 }
 
-int count_addrinfo(struct addrinfo * host)
+int
+count_addrinfo(struct addrinfo * host)
 {
     int i = 0;
     struct addrinfo * tmp1;
@@ -191,7 +224,8 @@ int count_addrinfo(struct addrinfo * host)
 
     return i;
 }
-bool compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2){
+bool
+compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2){
 
     size_t size;
 
@@ -209,7 +243,8 @@ bool compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2){
     return false;                    
 }    
 
-bool compare_hosts(struct addrinfo * host1, struct addrinfo * host2){
+bool
+compare_hosts(struct addrinfo * host1, struct addrinfo * host2){
     int size;
     bool found;
     struct addrinfo * tmp1, * tmp2;
@@ -252,7 +287,7 @@ add_hashtbl(struct hash_addrinfo * hashtbl, struct addrinfo * host)
 float
 compare_samples(struct addrinfo ** rand_res, int n_res)
 {
-    int i, max = 0; //sum = 0,
+    int i, max = 0, i_max = -1;
     float similarity;
     struct hash_addrinfo * hashtbl;
 
@@ -260,17 +295,22 @@ compare_samples(struct addrinfo ** rand_res, int n_res)
 
     memset(hashtbl, 0, n_res * sizeof(struct hash_addrinfo));
 
-    for ( i = 0 ; i < n_res ; i++){
+    for ( i = 0 ; i < n_res ; i++) {
         add_hashtbl(hashtbl, rand_res[i]);
     }
 
     for (i = 0 ; i < n_res ; i++) {
- 	    if (hashtbl[i].count > max)
+ 	    if (hashtbl[i].count > max) {
  	        max = hashtbl[i].count;
+                i_max = i;
+            } 
     }
 
-    printf ("max %d\n", max);
     similarity = (max * 100) / n_res;
+    
+    if (similarity > 80.0) {
+	dd_args.wildcard =  hashtbl[i_max].host;
+    } else dd_args.wildcard = NULL; //needed?
 
     free(hashtbl);
     return similarity;
@@ -296,12 +336,11 @@ wildcard_prob(char * domain,  const int n_samples)
     for (i = 0 ; i < n_samples ; i++) {
         gen_randstr(rand_str, SAMPLE_SIZE);
         snprintf (hostname, sizeof hostname, "%s.%s", rand_str, domain);
-	    printf("host: %s\n", hostname);
         // check for host not found error pls
-        if (getaddrinfo (hostname, NULL, &hints, &rand_res[i]) != 0) {
+        if (getaddrinfo(hostname, NULL, &hints, &rand_res[i]) != 0) { //mem leak
             err = -1;
             goto err;
-        }   
+        }
     }  
 
     similarity = compare_samples(rand_res, n_samples);
@@ -318,6 +357,7 @@ int
 main(int argc, char ** argv) 
 {
     int i;
+    char hostname[MAX];
     pthread_t * threads;
     FILE * wordlist;
 
@@ -328,7 +368,17 @@ main(int argc, char ** argv)
 
     banner();
  
-    wordlist = parse_args(argc, argv);
+    wordlist = parse_args(argc, argv);   
+
+    srand(time(NULL));
+    wildcard_prob(dd_args.domain, SAMPLE_SIZE);
+
+    if (dd_args.wildcard) {
+        snprintf(hostname, sizeof hostname, "%s.%s", "*", dd_args.domain);
+        print_resolve_lookup(hostname, dd_args.wildcard);
+	exit(1);//tmp
+    }
+
     threads = (pthread_t *) ck_malloc(dd_args.nthreads * sizeof(pthread_t)); 
  
     for (i = 0; i < dd_args.nthreads; i++) {
@@ -341,6 +391,5 @@ main(int argc, char ** argv)
   
     free(threads);
     fclose(wordlist);
-
     return EXIT_SUCCESS;
 }
