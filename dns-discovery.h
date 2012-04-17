@@ -15,14 +15,15 @@
     if (dd_args.csv_report)\
         fprintf(dd_args.csv_report, args);
 
+struct hash_addrinfo {
+    struct addrinfo * host;
+    int count;
+};
+
 struct dns_discovery_args {
     FILE * reg_report;
     FILE * csv_report;
     char * domain;
     int nthreads;
-};
-
-struct hash_addrinfo {
-    struct addrinfo * host;
-    int count;
+    struct addrinfo * wildcard;
 };
