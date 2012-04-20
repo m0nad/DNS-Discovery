@@ -254,13 +254,11 @@ wildcard_prob(char * domain,  const int n_samples)
 
     similarity = compare_samples(rand_res, n_samples);
 
-
 err:
-
 
     for (i = 0; rand_res[i]; i++) {
 	if (rand_res[i] != dd_args.wildcard)
-	freeaddrinfo(rand_res[i]);
+	    freeaddrinfo(rand_res[i]);
     }
 
     free(rand_res);
