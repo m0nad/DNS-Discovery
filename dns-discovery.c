@@ -102,98 +102,7 @@ parse_args(int argc, char ** argv)
 
     return wordlist;
 }
-void
-print_resolve_lookup(const char * hostname, struct addrinfo * res)
-{
-    int ipv = 0;
-    void * addr_ptr = NULL;
-    char addr_str[LEN];
-    //struct addrinfo * ori_res;
 
-    REG_REPORT("%s\n", hostname);
-    CSV_REPORT("%s", hostname);
-    for (; res; res = res->ai_next) { 
-        switch (res->ai_family) {
-            case AF_INET:
-                ipv = 4;
-                addr_ptr = &((struct sockaddr_in *) res->ai_addr)->sin_addr;
-                break;
-            case AF_INET6:
-                ipv = 6;
-                addr_ptr = &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr;
-                break;
-        }
-        inet_ntop(res->ai_family, addr_ptr, addr_str, LEN);
-        REG_REPORT("IPv%d address: %s\n", ipv, addr_str);
-        CSV_REPORT(",%s", addr_str);
-    }
-    REG_REPORT("\n");
-    CSV_REPORT("\n");
-} 
-void
-resolve_lookup(const char * hostname)
-{
-    //int ipv = 0;
-    //char addr_str[LEN];
-    //void * addr_ptr = NULL;
-    struct addrinfo * res, hints;//
-
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = PF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags |= AI_CANONNAME;
-
-    if (getaddrinfo(hostname, NULL, &hints, &res) == 0) {
-        pthread_mutex_lock(&mutexsum);
-        print_resolve_lookup(hostname, res);
-/*
-        REG_REPORT("%s\n", hostname);
-        CSV_REPORT("%s", hostname);
-        for (ori_res = res; res; res = res->ai_next) { 
-            switch (res->ai_family) {
-                case AF_INET:
-                    ipv = 4;
-                    addr_ptr = &((struct sockaddr_in *) res->ai_addr)->sin_addr;
-                    break;
-                case AF_INET6:
-                    ipv = 6;
-                    addr_ptr = &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr;
-                    break;
-            }
-            inet_ntop(res->ai_family, addr_ptr, addr_str, LEN);
-            REG_REPORT("IPv%d address: %s\n", ipv, addr_str);
-            CSV_REPORT(",%s", addr_str);
-        }
-        REG_REPORT("\n");
-        CSV_REPORT("\n");
-*/
-
-    	freeaddrinfo(res);
-        pthread_mutex_unlock(&mutexsum);
-    }
-}
-
-void 
-dns_discovery(FILE * file, const char * domain)
-{
-    char line[LEN];
-    char hostname[MAX];
-
-    while (fgets(line, sizeof line, file) != NULL) {
-        chomp(line);
-        snprintf(hostname, sizeof hostname, "%s.%s", line, domain);
-        resolve_lookup(hostname);
-    }
-}
-
-void *
-dns_discovery_thread(void * args)
-{
-    FILE * wordlist = (FILE *) args;
-    dns_discovery(wordlist, dd_args.domain);
-    /*pthread_exit((void *) 0);*/
-    return NULL;	
-}
 void
 gen_randstr(char * str_rand, const int len)
 {
@@ -353,6 +262,84 @@ err:
 
     return similarity;
 }
+
+void
+print_resolve_lookup(const char * hostname, struct addrinfo * res)
+{
+    int ipv = 0;
+    void * addr_ptr = NULL;
+    char addr_str[LEN];
+    //struct addrinfo * ori_res;
+
+    REG_REPORT("%s\n", hostname);
+    CSV_REPORT("%s", hostname);
+    for (; res; res = res->ai_next) { 
+        switch (res->ai_family) {
+            case AF_INET:
+                ipv = 4;
+                addr_ptr = &((struct sockaddr_in *) res->ai_addr)->sin_addr;
+                break;
+            case AF_INET6:
+                ipv = 6;
+                addr_ptr = &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr;
+                break;
+        }
+        inet_ntop(res->ai_family, addr_ptr, addr_str, LEN);
+        REG_REPORT("IPv%d address: %s\n", ipv, addr_str);
+        CSV_REPORT(",%s", addr_str);
+    }
+    REG_REPORT("\n");
+    CSV_REPORT("\n");
+} 
+void
+resolve_lookup(const char * hostname)
+{
+    //int ipv = 0;
+    //char addr_str[LEN];
+    //void * addr_ptr = NULL;
+    struct addrinfo * res, hints;//
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = PF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags |= AI_CANONNAME;
+
+    if (getaddrinfo(hostname, NULL, &hints, &res) == 0) {
+        pthread_mutex_lock(&mutexsum);
+
+	if (compare_hosts(dd_args.wildcard, res))
+	    goto ret;
+
+        print_resolve_lookup(hostname, res);
+
+ret:
+    	freeaddrinfo(res);
+        pthread_mutex_unlock(&mutexsum);
+    }
+}
+
+void 
+dns_discovery(FILE * file, const char * domain)
+{
+    char line[LEN];
+    char hostname[MAX];
+
+    while (fgets(line, sizeof line, file) != NULL) {
+        chomp(line);
+        snprintf(hostname, sizeof hostname, "%s.%s", line, domain);
+        resolve_lookup(hostname);
+    }
+}
+
+void *
+dns_discovery_thread(void * args)
+{
+    FILE * wordlist = (FILE *) args;
+    dns_discovery(wordlist, dd_args.domain);
+    /*pthread_exit((void *) 0);*/
+    return NULL;	
+}
+
 int
 main(int argc, char ** argv) 
 {
@@ -376,7 +363,6 @@ main(int argc, char ** argv)
     if (dd_args.wildcard) {
         snprintf(hostname, sizeof hostname, "%s.%s", "*", dd_args.domain);
         print_resolve_lookup(hostname, dd_args.wildcard);
-	exit(1);//tmp
     }
 
     threads = (pthread_t *) ck_malloc(dd_args.nthreads * sizeof(pthread_t)); 
