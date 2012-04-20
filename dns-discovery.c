@@ -5,6 +5,7 @@ DNS Discovery
 googlecode : http://dns-discovery.googlecode.com
 
 author	   : Victor Ramos Mello aka m0nad
+	   : Breno Dario Cunha aka hofmann
 email	   : m0nad /at/ email.com
 github	   : https://github.com/m0nad/
 copyfree   : beer license, if you like this, buy me a beer
@@ -118,7 +119,6 @@ gen_randstr(char * str_rand, const int len)
     }
 
     str_rand[len] = 0;
-    //scanf("%s", str_rand);
 
 }
 
@@ -246,7 +246,7 @@ wildcard_prob(char * domain,  const int n_samples)
         gen_randstr(rand_str, SAMPLE_SIZE);
         snprintf (hostname, sizeof hostname, "%s.%s", rand_str, domain);
         // check for host not found error pls
-        if (getaddrinfo(hostname, NULL, &hints, &rand_res[i]) != 0) { //mem leak
+        if (getaddrinfo(hostname, NULL, &hints, &rand_res[i]) != 0) {
             err = -1;
             goto err;
         }
