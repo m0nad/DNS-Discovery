@@ -4,11 +4,14 @@ DNS Discovery
 
 googlecode : http://dns-discovery.googlecode.com
 
-author	   : Victor Ramos Mello aka m0nad
-	   : Breno Dario Cunha aka hofmann
-email	   : m0nad /at/ email.com
+authors	   : Victor Ramos Mello aka m0nad
+	     Breno Dario Cunha aka hofmann
+emails	   : victornrm at gmail.com | m0nad at email.com
+	     brenodario at gmail.com
 github	   : https://github.com/m0nad/
+	     https://github.com/brenocunha
 copyfree   : beer license, if you like this, buy me a beer
+
 */
 #include <string.h>
 #include <getopt.h>
@@ -108,7 +111,7 @@ void
 gen_randstr(char * str_rand, const int len)
 {
     int i;
-    static const char alphanum [] =
+    static const char alphanum[] =
        "0123456789"
        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
        "abcdefghijklmnopqrstuvwxyz";
@@ -119,7 +122,6 @@ gen_randstr(char * str_rand, const int len)
     }
 
     str_rand[len] = 0;
-
 }
 
 int
@@ -128,20 +130,21 @@ count_addrinfo(struct addrinfo * host)
     int i = 0;
     struct addrinfo * tmp1;
 
-    for (tmp1 = host ; tmp1 ; tmp1 = tmp1->ai_next) 
+    for (tmp1 = host; tmp1; tmp1 = tmp1->ai_next) 
         i++;
 
     return i;
 }
+
 bool
-compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2){
+compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2) {
 
     size_t size;
 
     if (host1->ai_family != host2->ai_family)
         return false;    
     
-    switch (host1->ai_family){    
+    switch (host1->ai_family) {    
         case AF_INET : size = sizeof (struct sockaddr_in) ; break;
         case AF_INET6: size = sizeof (struct sockaddr_in6); break;
     }
@@ -153,7 +156,7 @@ compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2){
 }    
 
 bool
-compare_hosts(struct addrinfo * host1, struct addrinfo * host2){
+compare_hosts(struct addrinfo * host1, struct addrinfo * host2) {
     int size;
     bool found;
     struct addrinfo * tmp1, * tmp2;
@@ -162,10 +165,10 @@ compare_hosts(struct addrinfo * host1, struct addrinfo * host2){
     if (size != count_addrinfo(host2))
         return false;
     
-    for (tmp1 = host1 ; tmp1 ; tmp1 = tmp1->ai_next) {
+    for (tmp1 = host1; tmp1 ;tmp1 = tmp1->ai_next) {
         found = false;
-        for (tmp2 = host2 ; tmp2 ; tmp2 = tmp2->ai_next){
-            if (compare_ai_addr(tmp1,tmp2)){
+        for (tmp2 = host2; tmp2; tmp2 = tmp2->ai_next) {
+            if (compare_ai_addr(tmp1,tmp2)) {
                 found = true;
                 break;
             }
@@ -182,8 +185,8 @@ add_hashtbl(struct hash_addrinfo * hashtbl, struct addrinfo * host)
 {
     int i;
     
-    for (i = 0 ; hashtbl[i].host ; i++){
-        if (compare_hosts(hashtbl[i].host, host)){
+    for (i = 0; hashtbl[i].host; i++) {
+        if (compare_hosts(hashtbl[i].host, host)) {
             hashtbl[i].count++;
             return;
         }
@@ -204,11 +207,11 @@ compare_samples(struct addrinfo ** rand_res, int n_res)
 
     memset(hashtbl, 0, n_res * sizeof(struct hash_addrinfo));
 
-    for ( i = 0 ; i < n_res ; i++) {
+    for ( i = 0; i < n_res; i++) {
         add_hashtbl(hashtbl, rand_res[i]);
     }
 
-    for (i = 0 ; i < n_res ; i++) {
+    for (i = 0; i < n_res; i++) {
  	    if (hashtbl[i].count > max) {
  	        max = hashtbl[i].count;
                 i_max = i;
@@ -227,7 +230,7 @@ compare_samples(struct addrinfo ** rand_res, int n_res)
 
 
 float
-wildcard_prob(char * domain,  const int n_samples)
+wildcard_prob(char * domain, const int n_samples)
 {
     int i, err = 0;
     float similarity;
@@ -237,7 +240,7 @@ wildcard_prob(char * domain,  const int n_samples)
 
     rand_res = (struct addrinfo **) ck_malloc(n_samples * sizeof(struct addrinfo *));
 
-    memset (&hints, 0, sizeof hints);
+    memset(&hints, 0, sizeof hints);
     hints.ai_family = PF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags |= AI_CANONNAME;
@@ -275,7 +278,6 @@ print_resolve_lookup(const char * hostname, struct addrinfo * res)
     int ipv = 0;
     void * addr_ptr = NULL;
     char addr_str[LEN];
-    //struct addrinfo * ori_res;
 
     REG_REPORT("%s\n", hostname);
     CSV_REPORT("%s", hostname);
@@ -296,14 +298,12 @@ print_resolve_lookup(const char * hostname, struct addrinfo * res)
     }
     REG_REPORT("\n");
     CSV_REPORT("\n");
-} 
+}
+
 void
 resolve_lookup(const char * hostname)
 {
-    //int ipv = 0;
-    //char addr_str[LEN];
-    //void * addr_ptr = NULL;
-    struct addrinfo * res, hints;//
+    struct addrinfo * res, hints;
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = PF_UNSPEC;
@@ -317,7 +317,6 @@ resolve_lookup(const char * hostname)
 	    goto ret;
 
         print_resolve_lookup(hostname, res);
-
 ret:
     	freeaddrinfo(res);
         pthread_mutex_unlock(&mutexsum);
