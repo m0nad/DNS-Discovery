@@ -16,7 +16,7 @@ http://dns-discovery.googlecode.com
 
 Compiling
 
-$ gcc -o dns-discovery dns-discovery.c -lpthread -O3
+$ make 
 
 
 Usage
@@ -68,4 +68,4 @@ http://dnsenum.googlecode.com/
 
 Feedback
 
-You can send me a email to: m0nad /at/ email.com
+You can send me a email to: m0nad at email.com
