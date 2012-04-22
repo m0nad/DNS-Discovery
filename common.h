@@ -14,3 +14,5 @@ ck_malloc(size_t);
 void
 chomp(char *);
 
+void
+gen_randstr(char *, const int);

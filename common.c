@@ -36,3 +36,21 @@ chomp(char * str)
     str++;
   }
 }
+
+void
+gen_randstr(char * str_rand, const int len)
+{
+    int i;
+    static const char alphanum[] =
+       "0123456789"
+       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+       "abcdefghijklmnopqrstuvwxyz";
+
+
+    for (i = 0; i < len; i++) {
+        str_rand[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+    }
+
+    str_rand[len] = 0;
+}
+
