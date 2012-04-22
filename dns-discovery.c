@@ -165,84 +165,25 @@ compare_hosts(struct addrinfo * host1, struct addrinfo * host2) {
 }
 
 void
-add_hashtbl(struct hash_addrinfo * hashtbl, struct addrinfo * host)
+wildcard_detect()
 {
-    int i;
-    
-    for (i = 0; hashtbl[i].host; i++) {
-        if (compare_hosts(hashtbl[i].host, host)) {
-            hashtbl[i].count++;
-            return;
-        }
-    }
-    
-    hashtbl[i].host  = host;
-    hashtbl[i].count = 1;
-}
-
-void
-compare_samples(struct addrinfo ** rand_res, int n_res)
-{
-    int i, max = 0, i_max = -1;
-    float similarity;
-    struct hash_addrinfo * hashtbl;
-
-    hashtbl = (struct hash_addrinfo *) ck_malloc(n_res * sizeof(struct hash_addrinfo));
-
-    memset(hashtbl, 0, n_res * sizeof(struct hash_addrinfo));
-
-    for ( i = 0; i < n_res; i++) {
-        add_hashtbl(hashtbl, rand_res[i]);
-    }
-
-    for (i = 0; i < n_res; i++) {
- 	    if (hashtbl[i].count > max) {
- 	        max = hashtbl[i].count;
-                i_max = i;
-            } 
-    }
-
-    similarity = (max * 100) / n_res;
-    
-    if (similarity > 80.0) {
-	dd_args.wildcard =  hashtbl[i_max].host;
-    } else dd_args.wildcard = NULL; //needed?
-
-    free(hashtbl);
-}
-
-
-void
-wildcard_prob(char * domain, const int n_samples)
-{
-    int i;
     char rand_str[LEN], hostname[MAX];
-    struct addrinfo ** rand_res;
+    struct addrinfo * rand_res;
     struct addrinfo hints;
 
-    rand_res = (struct addrinfo **) ck_malloc(n_samples * sizeof(struct addrinfo *));
+    srand(time(NULL));
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = PF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags |= AI_CANONNAME;
 
-    for (i = 0; i < n_samples; i++) {
-        gen_randstr(rand_str, SAMPLE_SIZE);
-        snprintf (hostname, sizeof hostname, "%s.%s", rand_str, domain);
-        // check for host not found error pls
-        if (getaddrinfo(hostname, NULL, &hints, &rand_res[i]) != 0)
-            goto err;
-    }  
-
-    compare_samples(rand_res, n_samples);
-err:
-    for (i = 0; i < n_samples; i++) {
-	if (dd_args.wildcard && rand_res[i] != dd_args.wildcard)
-	    freeaddrinfo(rand_res[i]);
-    }
-
-    free(rand_res);
+    gen_randstr(rand_str, SIZERANDSTR);
+    snprintf (hostname, sizeof hostname, "%s.%s", rand_str, dd_args.domain);
+    // check for host not found error pls
+    if (getaddrinfo(hostname, NULL, &hints, &rand_res) == 0)
+	dd_args.wildcard = rand_res;
+    else dd_args.wildcard = NULL;
 }
 
 void
@@ -333,8 +274,7 @@ main(int argc, char ** argv)
  
     wordlist = parse_args(argc, argv);   
 
-    srand(time(NULL));
-    wildcard_prob(dd_args.domain, SAMPLE_SIZE);
+    wildcard_detect();
 
     if (dd_args.wildcard) {
         snprintf(hostname, sizeof hostname, "%s.%s", "*", dd_args.domain);
