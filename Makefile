@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra
-BINDIR=/usr/local/bin
+BINDIR=/usr/bin
 
 dns-disovery: dns-discovery.c dns-discovery.h
 	$(CC) $(CFLAGS) -c *.c
