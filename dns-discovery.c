@@ -100,28 +100,12 @@ parse_args(int argc, char ** argv)
             default:
                 usage();
         }
+
     SAY("WORDLIST: %s\n", ptr_wl);
     wordlist = ck_fopen(ptr_wl, "r");
     SAY("\n");
 
     return wordlist;
-}
-
-void
-gen_randstr(char * str_rand, const int len)
-{
-    int i;
-    static const char alphanum[] =
-       "0123456789"
-       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-       "abcdefghijklmnopqrstuvwxyz";
-
-
-    for (i = 0; i < len; i++) {
-        str_rand[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
-    }
-
-    str_rand[len] = 0;
 }
 
 int
@@ -165,7 +149,7 @@ compare_hosts(struct addrinfo * host1, struct addrinfo * host2) {
     if (size != count_addrinfo(host2))
         return false;
     
-    for (tmp1 = host1; tmp1 ;tmp1 = tmp1->ai_next) {
+    for (tmp1 = host1; tmp1; tmp1 = tmp1->ai_next) {
         found = false;
         for (tmp2 = host2; tmp2; tmp2 = tmp2->ai_next) {
             if (compare_ai_addr(tmp1,tmp2)) {
@@ -196,7 +180,7 @@ add_hashtbl(struct hash_addrinfo * hashtbl, struct addrinfo * host)
     hashtbl[i].count = 1;
 }
 
-float
+void
 compare_samples(struct addrinfo ** rand_res, int n_res)
 {
     int i, max = 0, i_max = -1;
@@ -225,15 +209,13 @@ compare_samples(struct addrinfo ** rand_res, int n_res)
     } else dd_args.wildcard = NULL; //needed?
 
     free(hashtbl);
-    return similarity;
 }
 
 
-float
+void
 wildcard_prob(char * domain, const int n_samples)
 {
-    int i, err = 0;
-    float similarity;
+    int i;
     char rand_str[LEN], hostname[MAX];
     struct addrinfo ** rand_res;
     struct addrinfo hints;
@@ -245,31 +227,22 @@ wildcard_prob(char * domain, const int n_samples)
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags |= AI_CANONNAME;
 
-    for (i = 0 ; i < n_samples ; i++) {
+    for (i = 0; i < n_samples; i++) {
         gen_randstr(rand_str, SAMPLE_SIZE);
         snprintf (hostname, sizeof hostname, "%s.%s", rand_str, domain);
         // check for host not found error pls
-        if (getaddrinfo(hostname, NULL, &hints, &rand_res[i]) != 0) {
-            err = -1;
+        if (getaddrinfo(hostname, NULL, &hints, &rand_res[i]) != 0)
             goto err;
-        }
     }  
 
-    similarity = compare_samples(rand_res, n_samples);
-
+    compare_samples(rand_res, n_samples);
 err:
-
     for (i = 0; rand_res[i]; i++) {
 	if (rand_res[i] != dd_args.wildcard)
 	    freeaddrinfo(rand_res[i]);
     }
 
     free(rand_res);
-
-    if (err < 0)
-       return err;
-
-    return similarity;
 }
 
 void
