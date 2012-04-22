@@ -237,8 +237,8 @@ wildcard_prob(char * domain, const int n_samples)
 
     compare_samples(rand_res, n_samples);
 err:
-    for (i = 0; rand_res[i]; i++) {
-	if (rand_res[i] != dd_args.wildcard)
+    for (i = 0; i < n_samples; i++) {
+	if (dd_args.wildcard && rand_res[i] != dd_args.wildcard)
 	    freeaddrinfo(rand_res[i]);
     }
 
