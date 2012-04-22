@@ -286,11 +286,9 @@ resolve_lookup(const char * hostname)
     if (getaddrinfo(hostname, NULL, &hints, &res) == 0) {
         pthread_mutex_lock(&mutexsum);
 
-	if (compare_hosts(dd_args.wildcard, res))
-	    goto ret;
+	if (!compare_hosts(dd_args.wildcard, res))
+	    print_resolve_lookup(hostname, res);
 
-        print_resolve_lookup(hostname, res);
-ret:
     	freeaddrinfo(res);
         pthread_mutex_unlock(&mutexsum);
     }
