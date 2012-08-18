@@ -4,12 +4,14 @@ DNS Discovery
 
 googlecode : http://dns-discovery.googlecode.com
 
-authors	   : Victor Ramos Mello aka m0nad
-	     Breno Dario Cunha aka hofmann
+author	   : Victor Ramos Mello aka m0nad
 emails	   : victornrm at gmail.com | m0nad at email.com
-	     brenodario at gmail.com
 github	   : https://github.com/m0nad/
-	     https://github.com/brenocunha
+
+committer  : Breno Dario Cunha aka hofmann
+email      : brenodario at gmail.com
+github	   : https://github.com/brenocunha
+
 copyfree   : beer license, if you like this, buy me a beer
 
 */
@@ -121,8 +123,8 @@ count_addrinfo(struct addrinfo * host)
 }
 
 bool
-compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2) {
-
+compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2)
+{
     size_t size;
 
     if (host1->ai_family != host2->ai_family)
@@ -140,15 +142,12 @@ compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2) {
 }    
 
 bool
-compare_hosts(struct addrinfo * host1, struct addrinfo * host2) {
-    int size;
+compare_hosts(struct addrinfo * host1, struct addrinfo * host2)
+{
+
     bool found;
     struct addrinfo * tmp1, * tmp2;
-
-    size = count_addrinfo(host1);
-    if (size != count_addrinfo(host2))
-        return false;
-    
+  
     for (tmp1 = host1; tmp1; tmp1 = tmp1->ai_next) {
         found = false;
         for (tmp2 = host2; tmp2; tmp2 = tmp2->ai_next) {
@@ -206,7 +205,7 @@ print_resolve_lookup(const char * hostname, struct addrinfo * res)
                 addr_ptr = &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr;
                 break;
         }
-        inet_ntop(res->ai_family, addr_ptr, addr_str, LEN);
+        inet_ntop(res->ai_family, addr_ptr, addr_str, sizeof addr_str);
         REG_REPORT("IPv%d address: %s\n", ipv, addr_str);
         CSV_REPORT(",%s", addr_str);
     }
@@ -227,7 +226,7 @@ resolve_lookup(const char * hostname)
     if (getaddrinfo(hostname, NULL, &hints, &res) == 0) {
         pthread_mutex_lock(&mutexsum);
 
-	if (!compare_hosts(dd_args.wildcard, res))
+	if (!compare_hosts(res, dd_args.wildcard))
 	    print_resolve_lookup(hostname, res);
 
     	freeaddrinfo(res);
@@ -271,13 +270,11 @@ main(int argc, char ** argv)
     }
 
     banner();
- 
     wordlist = parse_args(argc, argv);   
-
     wildcard_detect();
 
     if (dd_args.wildcard) {
-        snprintf(hostname, sizeof hostname, "%s.%s", "*", dd_args.domain);
+        snprintf(hostname, sizeof hostname, "*.%s", dd_args.domain);
         print_resolve_lookup(hostname, dd_args.wildcard);
     }
 
