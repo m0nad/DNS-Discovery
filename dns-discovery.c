@@ -173,7 +173,7 @@ wildcard_detect()
     srand(time(NULL));
 
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = PF_UNSPEC;
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags |= AI_CANONNAME;
 
@@ -219,7 +219,7 @@ resolve_lookup(const char * hostname)
     struct addrinfo * res, hints;
 
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = PF_UNSPEC;
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags |= AI_CANONNAME;
 
