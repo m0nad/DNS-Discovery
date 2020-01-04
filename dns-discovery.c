@@ -94,12 +94,11 @@ parse_args(int argc, char ** argv)
                 SAY("CSV REPORT: %s\n", optarg);
                 dd_args.csv_report = ck_fopen(optarg, "w");
                 break;
-            case '?':
+            default:
                 if (optopt == 'r' || optopt == 'w' || optopt == 't' || optopt == 'c') {
                     fprintf(stderr, "Option -%c requires an argument.\n", optopt);
 	            exit(EXIT_FAILURE);
                 }
-            default:
                 usage();
         }
 
