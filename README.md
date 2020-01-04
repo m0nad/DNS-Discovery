@@ -1,26 +1,23 @@
-Introduction.
+# DNS-Discovery
 
-DNS-Discovery is a multithreaded subdomain bruteforcer meant to be
-used by pentesters during the initial stages of testing.
-It uses a wordlist that concatenates with a given domain to search for
-subdomains.
+## Introduction.
 
-DNS-Discovery resolve and display IPv4 and IPv6.  It's similar to others
-tools, like dnsmap, but multithreaded.
-It was tested in GNU/Linux 2.6.38 and FreeBSD 8.1-STABLE.
+DNS-Discovery is a multithreaded subdomain bruteforcer meant to be used by pentesters during the initial stages of testing. It uses a wordlist that concatenates with a given domain to search for subdomains.
 
-Download
+DNS-Discovery resolve and display IPv4 and IPv6.  It's similar to others tools, like dnsmap, but multithreaded.
+
+## Download
 
 http://dns-discovery.googlecode.com
 
 
-Compiling
-
+## Compiling
+```
 $ make 
+```
 
-
-Usage
-
+## Usage
+```
 usage: ./dns-discovery <domain> [options]
 options:
 	-w <wordlist file> (default : wordlist.wl)
@@ -52,20 +49,4 @@ ipv6.google.com
 IPv6 address: 2001:4860:b009::68
 
 ...
-
-
-Similar tools
-
-dnsmap
-http://dnsmap.googlecode.com/
-
-fierce
-http://ha.ckers.org/fierce/
-
-dnsenum
-http://dnsenum.googlecode.com/
-
-
-Feedback
-
-You can send me a email to: m0nad at email.com
+```
