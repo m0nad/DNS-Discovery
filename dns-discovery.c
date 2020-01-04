@@ -110,18 +110,6 @@ parse_args(int argc, char ** argv)
     return wordlist;
 }
 
-int
-count_addrinfo(struct addrinfo * host)
-{
-    int i = 0;
-    struct addrinfo * tmp1;
-
-    for (tmp1 = host; tmp1; tmp1 = tmp1->ai_next) 
-        i++;
-
-    return i;
-}
-
 bool
 compare_ai_addr(struct addrinfo * host1, struct addrinfo * host2)
 {
