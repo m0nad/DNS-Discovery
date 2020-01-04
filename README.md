@@ -6,10 +6,6 @@ DNS-Discovery is a multithreaded subdomain bruteforcer meant to be used by pente
 
 DNS-Discovery resolve and display IPv4 and IPv6.  It's similar to others tools, like dnsmap, but multithreaded.
 
-## Download
-
-http://dns-discovery.googlecode.com
-
 
 ## Compiling
 ```
